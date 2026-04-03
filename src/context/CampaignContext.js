@@ -1,53 +1,82 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect } from 'react';
-import { mockCampaigns as initialMockCampaigns } from '@/lib/mockData';
+import { useAuth } from './AuthContext';
 
 const CampaignContext = createContext();
 
 export function CampaignProvider({ children }) {
+  const { user } = useAuth();
   const [campaigns, setCampaigns] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('mediaflow-campaigns');
-    if (saved) {
+    const fetchCampaigns = async () => {
       try {
-        setCampaigns(JSON.parse(saved));
+        const url = user?.role === 'admin' 
+          ? '/api/campaigns' 
+          : `/api/campaigns?vendorId=${user?.id}`;
+        
+        const res = await fetch(url);
+        const data = await res.json();
+        setCampaigns(Array.isArray(data) ? data : []);
       } catch (e) {
-        setCampaigns(initialMockCampaigns);
+        console.error('Failed to fetch campaigns:', e);
+      } finally {
+        setLoading(false);
       }
-    } else {
-      setCampaigns(initialMockCampaigns);
-      localStorage.setItem('mediaflow-campaigns', JSON.stringify(initialMockCampaigns));
-    }
-    setLoading(false);
-  }, []);
+    };
 
-  const updateCampaign = (id, updates) => {
-    setCampaigns(prev => {
-      const next = prev.map(c => 
-        c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString().split('T')[0] } : c
-      );
-      localStorage.setItem('mediaflow-campaigns', JSON.stringify(next));
-      return next;
-    });
+    if (user) {
+      fetchCampaigns();
+    } else {
+      setCampaigns([]);
+      setLoading(false);
+    }
+  }, [user]);
+
+  const updateCampaign = async (id, updates) => {
+    try {
+      const res = await fetch(`/api/campaigns/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+
+      if (res.ok) {
+        setCampaigns(prev => prev.map(c => 
+          c.id === id ? { ...c, ...updates, updatedAt: new Date().toISOString() } : c
+        ));
+      }
+    } catch (e) {
+      console.error('Failed to update campaign:', e);
+    }
   };
 
-  const addCampaign = (campaignData) => {
-    setCampaigns(prev => {
-      const newCampaign = {
-        ...campaignData,
-        id: 'c' + Date.now(),
-        status: 'pending',
-        createdAt: new Date().toISOString().split('T')[0],
-        updatedAt: new Date().toISOString().split('T')[0],
-        analytics: { reach: 0, impressions: 0, clicks: 0, engagementRate: 0 }
-      };
-      const next = [newCampaign, ...prev];
-      localStorage.setItem('mediaflow-campaigns', JSON.stringify(next));
-      return next;
-    });
+  const addCampaign = async (campaignData) => {
+    try {
+      const res = await fetch('/api/campaigns', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(campaignData),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        const newCampaign = {
+          ...campaignData,
+          id: data.id,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          analytics: { reach: 0, impressions: 0, clicks: 0, engagementRate: 0 }
+        };
+        setCampaigns(prev => [newCampaign, ...prev]);
+        return data.id;
+      }
+    } catch (e) {
+      console.error('Failed to add campaign:', e);
+    }
   };
 
   return (

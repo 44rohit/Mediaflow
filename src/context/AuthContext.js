@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  const login = (userData) => {
+  const login = async (userData) => {
     setUser(userData);
     localStorage.setItem('mediaflow-user', JSON.stringify(userData));
   };

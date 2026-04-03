@@ -24,7 +24,7 @@ export default function RegisterPage() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!form.name || !form.email || !form.password || !form.businessName) {
@@ -32,16 +32,28 @@ export default function RegisterPage() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      const newUser = {
-        id: Date.now().toString(),
-        ...form,
-        role: 'vendor',
-        createdAt: new Date().toISOString().split('T')[0],
-      };
-      login(newUser);
-      router.push('/dashboard');
-    }, 1000);
+
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        login(data);
+        router.push('/dashboard');
+      } else {
+        setError(data.error || 'Registration failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError('Failed to connect to the server. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

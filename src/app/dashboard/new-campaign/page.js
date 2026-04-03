@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardSidebar from '@/components/DashboardSidebar';
@@ -20,6 +20,9 @@ export default function NewCampaignPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
   const [form, setForm] = useState({
     productName: '', productDescription: '', productCategory: '',
     hasIdea: false, ideaDescription: '',
@@ -44,6 +47,32 @@ export default function NewCampaignPage() {
       ...f,
       channels: f.channels.includes(ch) ? f.channels.filter(c => c !== ch) : [...f.channels, ch]
     }));
+  };
+
+  const handleFiles = (files) => {
+    const newFiles = Array.from(files).filter(f =>
+      ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp', 'video/mp4', 'video/webm'].includes(f.type) && f.size <= 10 * 1024 * 1024
+    );
+    const withPreviews = newFiles.map(f => ({
+      file: f,
+      name: f.name,
+      type: f.type,
+      preview: f.type.startsWith('image/') ? URL.createObjectURL(f) : null,
+    }));
+    setMediaFiles(prev => [...prev, ...withPreviews]);
+  };
+
+  const removeFile = (index) => {
+    setMediaFiles(prev => {
+      if (prev[index].preview) URL.revokeObjectURL(prev[index].preview);
+      return prev.filter((_, i) => i !== index);
+    });
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    handleFiles(e.dataTransfer.files);
   };
 
   const handleSubmit = () => {
@@ -144,19 +173,79 @@ export default function NewCampaignPage() {
               <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.3 }}>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: '600', fontFamily: 'Outfit, sans-serif', marginBottom: '24px' }}>Media & Ideas</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {/* Hidden file input */}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/png,image/jpeg,image/jpg,image/gif,image/webp,video/mp4,video/webm"
+                    style={{ display: 'none' }}
+                    onChange={e => handleFiles(e.target.files)}
+                  />
+
                   {/* Upload Zone */}
-                  <div style={{
-                    border: '2px dashed var(--border-color)', borderRadius: 'var(--radius-lg)',
-                    padding: '48px', textAlign: 'center', cursor: 'pointer',
-                    transition: 'all 0.3s', background: 'var(--bg-input)',
-                  }}>
-                    <HiOutlineCloudUpload size={40} style={{ color: 'var(--text-muted)', marginBottom: '12px' }} />
+                  <div
+                    onClick={() => fileInputRef.current?.click()}
+                    onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={handleDrop}
+                    style={{
+                      border: `2px dashed ${isDragging ? 'var(--accent-primary)' : 'var(--border-color)'}`,
+                      borderRadius: 'var(--radius-lg)',
+                      padding: '48px', textAlign: 'center', cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      background: isDragging ? 'rgba(99,102,241,0.05)' : 'var(--bg-input)',
+                      transform: isDragging ? 'scale(1.01)' : 'scale(1)',
+                    }}
+                  >
+                    <HiOutlineCloudUpload size={40} style={{ color: isDragging ? 'var(--accent-primary)' : 'var(--text-muted)', marginBottom: '12px', transition: 'color 0.2s' }} />
                     <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: '500', marginBottom: '6px' }}>Drag & drop your images or videos here</p>
-                    <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>PNG, JPG, MP4 up to 10MB</p>
-                    <button className="btn-secondary btn-sm" style={{ marginTop: '16px', borderRadius: '100px' }}>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>PNG, JPG, GIF, WEBP, MP4 · Max 10MB each</p>
+                    <button
+                      type="button"
+                      className="btn-secondary btn-sm"
+                      style={{ marginTop: '16px', borderRadius: '100px', pointerEvents: 'none' }}
+                    >
                       <HiOutlinePhotograph size={14} /> Browse Files
                     </button>
                   </div>
+
+                  {/* File Previews */}
+                  {mediaFiles.length > 0 && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+                      {mediaFiles.map((f, i) => (
+                        <div key={i} style={{ position: 'relative', borderRadius: '10px', overflow: 'hidden', border: '1px solid var(--border-color)', background: 'var(--bg-input)', aspectRatio: '1' }}>
+                          {f.preview ? (
+                            <img src={f.preview} alt={f.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ) : (
+                            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', padding: '8px' }}>
+                              <HiOutlinePhotograph size={24} style={{ color: 'var(--text-muted)' }} />
+                              <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textAlign: 'center', wordBreak: 'break-all', lineHeight: 1.2 }}>{f.name.slice(0, 20)}</span>
+                            </div>
+                          )}
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); removeFile(i); }}
+                            style={{
+                              position: 'absolute', top: '4px', right: '4px',
+                              width: '20px', height: '20px', borderRadius: '50%',
+                              background: 'rgba(0,0,0,0.7)', border: 'none',
+                              color: 'white', cursor: 'pointer', fontSize: '12px',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              lineHeight: 1,
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {mediaFiles.length > 0 && (
+                    <p style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                      {mediaFiles.length} file{mediaFiles.length > 1 ? 's' : ''} selected · Click the zone to add more
+                    </p>
+                  )}
 
                   {/* Idea Toggle */}
                   <div style={{

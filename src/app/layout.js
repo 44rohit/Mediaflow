@@ -2,6 +2,7 @@ import './globals.css';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { AuthProvider } from '@/context/AuthContext';
 import { CampaignProvider } from '@/context/CampaignContext';
+import HelpDeskChat from '@/components/HelpDeskChat';
 
 export const metadata = {
   title: 'MediaFlow – Smart Media Marketing Platform',
@@ -17,6 +18,7 @@ export default function RootLayout({ children }) {
           <AuthProvider>
             <CampaignProvider>
               {children}
+              <HelpDeskChat />
             </CampaignProvider>
           </AuthProvider>
         </ThemeProvider>

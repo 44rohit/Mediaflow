@@ -20,7 +20,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     if (!email || !password) {
@@ -28,17 +28,28 @@ export default function LoginPage() {
       return;
     }
     setLoading(true);
-    setTimeout(() => {
-      const formattedEmail = email.trim().toLowerCase();
-      const user = mockVendors.find(v => v.email.toLowerCase() === formattedEmail && v.password === password);
-      if (user) {
-        login(user);
-        router.push(user.role === 'admin' ? '/admin' : '/dashboard');
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        login(data);
+        router.push(data.role === 'admin' ? '/admin' : '/dashboard');
       } else {
-        setError('Invalid email or password.');
-        setLoading(false);
+        setError(data.error || 'Invalid email or password.');
       }
-    }, 800);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError('Failed to connect to the server. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
