@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -7,13 +8,14 @@ import { useTheme } from '@/context/ThemeContext';
 import {
   HiOutlineViewGrid, HiOutlineDocumentText, HiOutlinePlusCircle,
   HiOutlineChartBar, HiOutlineCog, HiOutlineLogout, HiOutlineSun, HiOutlineMoon,
-  HiOutlineUserGroup, HiOutlineClipboardList
+  HiOutlineUserGroup, HiOutlineClipboardList, HiOutlineMenu, HiOutlineX
 } from 'react-icons/hi';
 
 export default function DashboardSidebar({ type = 'vendor' }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const vendorLinks = [
     { href: '/dashboard', icon: HiOutlineViewGrid, label: 'Overview' },
@@ -33,7 +35,22 @@ export default function DashboardSidebar({ type = 'vendor' }) {
   const links = type === 'admin' ? adminLinks : vendorLinks;
 
   return (
-    <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+    <>
+      <div className="mobile-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '6px', background: 'var(--accent-gradient)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '800', color: 'white', fontFamily: 'Outfit, sans-serif' }}>M</div>
+          <span style={{ fontSize: '1rem', fontWeight: '700', fontFamily: 'Outfit, sans-serif', color: 'var(--text-primary)' }}>MediaFlow</span>
+        </div>
+        <button onClick={() => setIsMobileOpen(!isMobileOpen)} style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '4px' }}>
+          {isMobileOpen ? <HiOutlineX size={26} /> : <HiOutlineMenu size={26} />}
+        </button>
+      </div>
+
+      {isMobileOpen && (
+        <div onClick={() => setIsMobileOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(2px)', zIndex: 45 }} />
+      )}
+
+      <div className={`sidebar ${isMobileOpen ? 'mobile-open' : ''}`} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
       <div>
         {/* Logo */}
         <Link href="/" style={{ textDecoration: 'none' }}>
@@ -57,7 +74,7 @@ export default function DashboardSidebar({ type = 'vendor' }) {
           {links.map(link => {
             const active = pathname === link.href;
             return (
-              <Link key={link.href} href={link.href} style={{ textDecoration: 'none' }}>
+              <Link key={link.href} href={link.href} style={{ textDecoration: 'none' }} onClick={() => setIsMobileOpen(false)}>
                 <div style={{
                   display: 'flex', alignItems: 'center', gap: '12px',
                   padding: '11px 12px', borderRadius: 'var(--radius)',
@@ -129,5 +146,6 @@ export default function DashboardSidebar({ type = 'vendor' }) {
         </button>
       </div>
     </div>
+    </>
   );
 }

@@ -26,7 +26,7 @@ export default function AboutPage() {
   const team = [
     { name: 'Arjun Mehra', role: 'CEO & Founder', initial: 'A', color: '#6366f1' },
     { name: 'Sneha Rao', role: 'Head of Marketing', initial: 'S', color: '#8b5cf6' },
-    { name: 'Vikram Singh', role: 'Lead Designer', initial: 'V', color: '#f59e0b' },
+    { name: 'Rohit Vishwa', role: 'Lead Designer', initial: 'V', color: '#f59e0b' },
     { name: 'Priya Desai', role: 'Tech Lead', initial: 'P', color: '#22c55e' },
   ];
 

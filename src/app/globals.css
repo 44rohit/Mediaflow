@@ -336,10 +336,24 @@ h1, h2, h3, h4, h5, h6 {
 .animate-glow { animation: pulse-glow 4s ease-in-out infinite; }
 
 /* Data Table */
+.data-table-container {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -28px;
+  padding: 0 28px;
+}
+
+@media (max-width: 768px) {
+  .data-table-container {
+    margin: 0; padding: 0;
+  }
+}
+
 .data-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
+  min-width: 600px; /* Forces scroll on small screens */
 }
 
 .data-table th {
@@ -414,16 +428,53 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Responsive */
 @media (max-width: 1024px) {
-  .bento-grid-3 { grid-template-columns: repeat(2, 1fr); }
-  .bento-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .bento-grid-3 { grid-template-columns: repeat(2, 1fr) !important; }
+  .bento-grid-4 { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 64px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 40;
+  padding: 0 16px;
+  align-items: center;
+  justify-content: space-between;
 }
 
 @media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main-content { padding: 16px; }
+  .sidebar { 
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 50;
+    transform: translateX(-100%);
+    width: 280px;
+    visibility: hidden;
+  }
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    visibility: visible;
+    box-shadow: 10px 0 50px rgba(0,0,0,0.5);
+  }
+  .mobile-header {
+    display: flex;
+  }
+  .main-content { padding: 84px 16px 24px; }
   .section-container { padding: 0 16px; }
-  .bento-grid-2, .bento-grid-3, .bento-grid-4 { grid-template-columns: 1fr; }
-  .bento-span-2 { grid-column: span 1; }
+  
+  /* Sections responsive padding */
+  section { padding-top: 60px !important; padding-bottom: 60px !important; }
+  main > section:first-of-type { padding-top: 120px !important; }
+  
+  /* Grid overrides */
+  .bento-grid-2, .bento-grid-3, .bento-grid-4 { 
+    grid-template-columns: 1fr !important; 
+    gap: 16px !important;
+  }
+  .bento-span-2 { grid-column: span 1 !important; }
 }
 
 /* Line decoration */

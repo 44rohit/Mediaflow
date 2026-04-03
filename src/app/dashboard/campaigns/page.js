@@ -60,7 +60,7 @@ export default function CampaignsListPage() {
                     <p style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginBottom: '8px' }}>
                       {c.productDescription.slice(0, 120)}...
                     </p>
-                    <div style={{ display: 'flex', gap: '20px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
                       <span>Budget: ₹{Number(c.budget).toLocaleString()}</span>
                       <span>Reach: {c.analytics?.reach?.toLocaleString() || 0}</span>
                       <span>Created: {c.createdAt}</span>
