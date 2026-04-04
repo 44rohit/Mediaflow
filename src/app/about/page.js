@@ -26,8 +26,8 @@ export default function AboutPage() {
   const team = [
     { name: 'Arjun Mehra', role: 'CEO & Founder', initial: 'A', color: '#6366f1' },
     { name: 'Sneha Rao', role: 'Head of Marketing', initial: 'S', color: '#8b5cf6' },
-    { name: 'Rohit Vishwa', role: 'Lead Designer', initial: 'V', color: '#f59e0b' },
-    { name: 'Priya Desai', role: 'Tech Lead', initial: 'P', color: '#22c55e' },
+    { name: 'Jayant Parihar', role: 'Lead Designer', initial: 'J', color: '#f59e0b' },
+    { name: 'Rohit vishwa', role: 'Tech Lead', initial: 'R', color: '#22c55e' },
   ];
 
   const values = [
@@ -53,7 +53,7 @@ export default function AboutPage() {
                 ABOUT MEDIAFLOW
               </h1>
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: '1.8', maxWidth: '600px', margin: '0 auto' }}>
-                We&apos;re on a mission to democratize digital marketing for local businesses. 
+                We&apos;re on a mission to democratize digital marketing for local businesses.
                 Every small business deserves the same marketing power as the big brands.
               </p>
             </motion.div>
@@ -67,12 +67,12 @@ export default function AboutPage() {
               <motion.div variants={fadeUp}>
                 <h2 style={{ fontSize: '2rem', fontWeight: '700', fontFamily: 'Outfit, sans-serif', marginBottom: '20px' }}>Our Story</h2>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8', marginBottom: '16px' }}>
-                  MediaFlow was born from a simple observation: local businesses create amazing products 
+                  MediaFlow was born from a simple observation: local businesses create amazing products
                   and services, but often lack the tools and expertise to reach their full audience online.
                 </p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8', marginBottom: '16px' }}>
-                  Founded in 2024 in Mumbai, we set out to build a platform that bridges the gap between 
-                  talented local vendors and the digital marketing world. Today, we serve over 120 businesses 
+                  Founded in 2024 in Mumbai, we set out to build a platform that bridges the gap between
+                  talented local vendors and the digital marketing world. Today, we serve over 120 businesses
                   across India, managing campaigns that have reached millions of people.
                 </p>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: '1.8' }}>
